@@ -24,6 +24,11 @@ public class TodoController {
         return todoService.createTodo(todoRequestDto);
     }
 
+    @GetMapping("/inquireTodo")
+    public TodoResponseDto inquireTodo(Long id){
+        return todoService.inquireTodo(id);
+    }
+
     @GetMapping("/todoList")
     public List<TodoResponseDto> todoList(){
         return todoService.getTodo();
