@@ -5,6 +5,7 @@ import com.sparta.todo.dto.TodoResponseDto;
 import com.sparta.todo.entity.Todo;
 import com.sparta.todo.repository.TodoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,11 +27,35 @@ public class TodoService {
 
     public TodoResponseDto inquireTodo(Long id){
 
-        Todo todo = todoRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 id입니다."));
+        Todo todo = findByTodo(id);
         TodoResponseDto todoResponseDto = new TodoResponseDto(todo);
         return todoResponseDto;
     }
     public List<TodoResponseDto> getTodo(){
         return todoRepository.findAllByOrderByModifiedAtDesc().stream().map(TodoResponseDto::new).toList();
     }
+
+    @Transactional
+    public Long updateTodo(TodoRequestDto todoRequestDto,Long id){
+        Todo todo = findByTodo(id);
+        String password = validationPassword(todoRequestDto,id);
+        if(!password.equals("0")){
+            todo.update(todoRequestDto);
+        }
+
+        return id;
+    }
+    public String validationPassword(TodoRequestDto todoRequestDto,Long id){
+        Todo todo = findByTodo(id);
+        if(todo.getPassword().equals(todoRequestDto.getPassword())){
+            return todoRequestDto.getPassword();
+        }
+        return "0";
+    }
+
+    public Todo findByTodo(Long id){
+        return todoRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 id입니다."));
+    }
+
+
 }

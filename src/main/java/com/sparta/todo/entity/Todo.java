@@ -30,4 +30,11 @@ public class Todo extends Timestamped{
         this.manager = todoRequestDto.getManager();
         this.password = todoRequestDto.getPassword();
     }
+
+    public void update(TodoRequestDto todoRequestDto) {
+        this.title = todoRequestDto.getTitle();
+        this.contents = todoRequestDto.getContents();
+        this.manager = todoRequestDto.getManager();
+        this.password = todoRequestDto.getPassword();
+    }
 }
