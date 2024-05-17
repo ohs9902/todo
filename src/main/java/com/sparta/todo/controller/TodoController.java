@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RestController
 public class TodoController {
-    TodoService todoService;
+    private final TodoService todoService;
 
     public TodoController(TodoService todoService) {
         this.todoService = todoService;

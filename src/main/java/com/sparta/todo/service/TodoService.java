@@ -3,7 +3,9 @@ package com.sparta.todo.service;
 import com.sparta.todo.dto.TodoRequestDto;
 import com.sparta.todo.dto.TodoResponseDto;
 import com.sparta.todo.entity.Todo;
+import com.sparta.todo.exception.HttpException;
 import com.sparta.todo.repository.TodoRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +13,7 @@ import java.util.List;
 
 @Service
 public class TodoService {
-    TodoRepository todoRepository;
+    private final TodoRepository todoRepository;
 
     public TodoService(TodoRepository todoRepository) {
         this.todoRepository = todoRepository;
@@ -41,6 +43,8 @@ public class TodoService {
         String password = validationPassword(todoRequestDto,id);
         if(!password.equals("0")){
             todo.update(todoRequestDto);
+        }else{
+            throw new HttpException("패스워드가 틀렸습니다.", HttpStatus.FORBIDDEN);
         }
 
         return id;
@@ -48,8 +52,10 @@ public class TodoService {
 
     public Long deleteTodo(Long id,String password){
         Todo todo = findByTodo(id);
-        if(todo.getPassword().equals(password))
+        if(todo.getPassword().equals(password)){
             todoRepository.delete(todo);
+        }
+
 
         return id;
     }
@@ -61,9 +67,8 @@ public class TodoService {
         return "0";
     }
 
-
     public Todo findByTodo(Long id){
-        return todoRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 id입니다."));
+        return todoRepository.findById(id).orElseThrow(()-> new HttpException("없는 id입니다.",HttpStatus.NOT_FOUND));
     }
 
 
