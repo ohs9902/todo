@@ -45,6 +45,14 @@ public class TodoService {
 
         return id;
     }
+
+    public Long deleteTodo(Long id,String password){
+        Todo todo = findByTodo(id);
+        if(todo.getPassword().equals(password))
+            todoRepository.delete(todo);
+
+        return id;
+    }
     public String validationPassword(TodoRequestDto todoRequestDto,Long id){
         Todo todo = findByTodo(id);
         if(todo.getPassword().equals(todoRequestDto.getPassword())){
@@ -52,6 +60,7 @@ public class TodoService {
         }
         return "0";
     }
+
 
     public Todo findByTodo(Long id){
         return todoRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 id입니다."));
