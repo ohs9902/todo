@@ -1,9 +1,10 @@
 package com.sparta.todo.controller;
 
+import com.sparta.todo.apiResponse.ApiResponse;
 import com.sparta.todo.dto.TodoRequestDto;
 import com.sparta.todo.dto.TodoResponseDto;
-import com.sparta.todo.repository.TodoRepository;
 import com.sparta.todo.service.TodoService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,27 +21,32 @@ public class TodoController {
 
 
     @PostMapping("/createTodo")
-    public TodoResponseDto createTodo(@RequestBody TodoRequestDto todoRequestDto){
+    public ApiResponse<TodoResponseDto> createTodo(@Valid @RequestBody TodoRequestDto todoRequestDto){
+
         return todoService.createTodo(todoRequestDto);
     }
 
     @GetMapping("/inquireTodo")
-    public TodoResponseDto inquireTodo(Long id){
+    public ApiResponse<TodoResponseDto> inquireTodo(Long id){
         return todoService.inquireTodo(id);
     }
 
     @GetMapping("/todoList")
-    public List<TodoResponseDto> todoList(){
+    public ApiResponse<List> todoList(){
         return todoService.getTodo();
     }
 
     @PutMapping("/updateTodo/{id}")
-    public Long updateTodo(@RequestBody TodoRequestDto todoRequestDto,@PathVariable Long id){
+    public ApiResponse<Long> updateTodo(@Valid @RequestBody TodoRequestDto todoRequestDto,@PathVariable Long id){
+        ApiResponse<Long> apiResponse = todoService.updateTodo(todoRequestDto,id);
+        return apiResponse;
 
-        return todoService.updateTodo(todoRequestDto,id);
+
     }
     @DeleteMapping("/deleteTodo/{id}")
-    public Long deleteTodo(@PathVariable Long id,@RequestParam String password){
-        return todoService.deleteTodo(id,password);
+    public ApiResponse<Long> deleteTodo(@PathVariable Long id, @Valid @RequestParam String password){
+        ApiResponse<Long> apiResponse = todoService.deleteTodo(id,password);
+        return apiResponse;
+
     }
 }
