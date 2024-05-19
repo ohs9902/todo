@@ -12,9 +12,25 @@ public class ApiResponse <T>{
     private String message;
     private T data;
 
+    public ApiResponse(HttpStatus status, String message) {
+        this.status = status;
+        this.message = message;
+    }
     public ApiResponse(HttpStatus status,String message,T data) {
         this.status = status;
         this.message = message;
         this.data = data;
+    }
+
+    public static <T> ApiResponse<T> success(String message,T data){
+        return new ApiResponse<>(HttpStatus.OK,message,data);
+    }
+
+    public static <T> ApiResponse<T> success(String message){
+        return new ApiResponse<>(HttpStatus.OK,message);
+    }
+
+    public static <T> ApiResponse<T> error(HttpStatus status,String message){
+        return new ApiResponse<>(status,message);
     }
 }
