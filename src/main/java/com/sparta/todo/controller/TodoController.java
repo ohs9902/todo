@@ -5,6 +5,7 @@ import com.sparta.todo.dto.TodoRequestDto;
 import com.sparta.todo.dto.TodoResponseDto;
 import com.sparta.todo.service.TodoService;
 import jakarta.validation.Valid;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class TodoController {
     }
 
     @GetMapping("/inquireTodo")
-    public ApiResponse<TodoResponseDto> inquireTodo(Long id){
+    public ApiResponse<TodoResponseDto> inquireTodo(Long id) throws ChangeSetPersister.NotFoundException {
         return todoService.inquireTodo(id);
     }
 
@@ -37,14 +38,14 @@ public class TodoController {
     }
 
     @PutMapping("/updateTodo/{id}")
-    public ApiResponse<Long> updateTodo(@Valid @RequestBody TodoRequestDto todoRequestDto,@PathVariable Long id){
+    public ApiResponse<Long> updateTodo(@Valid @RequestBody TodoRequestDto todoRequestDto,@PathVariable Long id) throws ChangeSetPersister.NotFoundException {
         ApiResponse<Long> apiResponse = todoService.updateTodo(todoRequestDto,id);
         return apiResponse;
 
 
     }
     @DeleteMapping("/deleteTodo/{id}")
-    public ApiResponse<Long> deleteTodo(@PathVariable Long id, @Valid @RequestParam String password){
+    public ApiResponse<Long> deleteTodo(@PathVariable Long id, @Valid @RequestParam String password) throws ChangeSetPersister.NotFoundException {
         ApiResponse<Long> apiResponse = todoService.deleteTodo(id,password);
         return apiResponse;
 
