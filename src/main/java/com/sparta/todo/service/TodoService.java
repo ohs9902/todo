@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -29,8 +30,8 @@ public class TodoService {
 
     public ApiResponse<TodoResponseDto> inquireTodo(Long id){
 
-        Todo todo = findByTodo(id);
-        TodoResponseDto todoResponseDto = new TodoResponseDto(todo);
+        Optional<Todo> todo = findByTodo(id);
+        TodoResponseDto todoResponseDto = new TodoResponseDto(todo.get());
         ApiResponse<TodoResponseDto> apiResponse = new ApiResponse(HttpStatus.OK,"조회 성공",todoResponseDto);
         return apiResponse;
     }
@@ -42,28 +43,27 @@ public class TodoService {
 
     @Transactional
     public ApiResponse<Long> updateTodo(TodoRequestDto todoRequestDto,Long id){
-        Todo todo = findByTodo(id);
+        Optional<Todo> todo = findByTodo(id);
         ApiResponse<Long> apiResponse;
-        if(todo == null)
+        if(!todo.isPresent())
             return new ApiResponse(HttpStatus.NOT_FOUND,id+"는 존재하지 않는 ID입니다.",id);
         String password = validationPassword(todoRequestDto,id);
         if(!password.equals("0")){
-            todo.update(todoRequestDto);
+            todo.get().update(todoRequestDto);
             apiResponse = new ApiResponse<Long>(HttpStatus.OK,"수정 성공",id);
         }else{
             apiResponse = new ApiResponse(HttpStatus.FORBIDDEN,"수정 실패",id);
         }
-
         return apiResponse;
     }
 
     public ApiResponse<Long> deleteTodo(Long id,String password){
-        Todo todo = findByTodo(id);
+        Optional<Todo> todo = findByTodo(id);
         ApiResponse<Long> apiResponse;
         if(todo == null)
             return new ApiResponse(HttpStatus.NOT_FOUND,id+"는 존재하지 않는 ID입니다.",id);
-        if(todo.getPassword().equals(password)){
-            todoRepository.delete(todo);
+        if(todo.get().getPassword().equals(password)){
+            todoRepository.delete(todo.get());
             apiResponse = new ApiResponse<Long>(HttpStatus.OK,"삭제 성공",id);
         }else{
             apiResponse = new ApiResponse<Long>(HttpStatus.FORBIDDEN,"삭제 실패",id);
@@ -71,15 +71,15 @@ public class TodoService {
         return apiResponse;
     }
     public String validationPassword(TodoRequestDto todoRequestDto,Long id){
-        Todo todo = findByTodo(id);
-        if(todo.getPassword().equals(todoRequestDto.getPassword())){
+        Optional<Todo> todo = findByTodo(id);
+        if(todo.get().getPassword().equals(todoRequestDto.getPassword())){
             return todoRequestDto.getPassword();
         }
         return "0";
     }
 
-    public Todo findByTodo(Long id){
-        return todoRepository.findById(id).orElseThrow(()-> null);
+    public Optional<Todo> findByTodo(Long id){
+        return todoRepository.findById(id);
     }
 
 
