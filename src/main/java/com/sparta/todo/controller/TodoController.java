@@ -6,6 +6,7 @@ import com.sparta.todo.dto.TodoResponseDto;
 import com.sparta.todo.service.TodoService;
 import jakarta.validation.Valid;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,18 +24,20 @@ public class TodoController {
 
     @PostMapping("/createTodo")
     public ApiResponse<TodoResponseDto> createTodo(@Valid @RequestBody TodoRequestDto todoRequestDto){
-
-        return todoService.createTodo(todoRequestDto);
+        ApiResponse<TodoResponseDto> apiResponse = new ApiResponse<>(HttpStatus.OK,"할일 생성",todoService.createTodo(todoRequestDto));
+        return apiResponse;
     }
 
     @GetMapping("/inquireTodo")
     public ApiResponse<TodoResponseDto> inquireTodo(Long id) throws ChangeSetPersister.NotFoundException {
-        return todoService.inquireTodo(id);
+        ApiResponse<TodoResponseDto> apiResponse = new ApiResponse(HttpStatus.OK,"조회 성공",todoService.inquireTodo(id));
+        return apiResponse;
     }
 
     @GetMapping("/todoList")
     public ApiResponse<List> todoList(){
-        return todoService.getTodo();
+        ApiResponse<List> apiResponse = new ApiResponse<>(HttpStatus.OK,"조회 성공",todoService.getTodo());
+        return apiResponse;
     }
 
     @PutMapping("/updateTodo/{id}")

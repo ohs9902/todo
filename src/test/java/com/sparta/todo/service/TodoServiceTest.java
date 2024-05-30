@@ -86,13 +86,10 @@ class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("수정 로직 테스트")
-    public void testUpdateTodo(){
+    @DisplayName("수정 NotFound 테스트")
+    public void testUpdateTodoNotFound(){
         TodoRequestDto todoRequestDto = new TodoRequestDto();
-        todoRequestDto.setTitle("test");
-        todoRequestDto.setContents("test");
-        todoRequestDto.setManager("test@naver.com");
-        todoRequestDto.setPassword("1111");
+
         Long id = 1L;
 
         when(todoRepository.findById(id)).thenReturn(Optional.empty());
@@ -100,5 +97,21 @@ class TodoServiceTest {
         ApiResponse<Long> response = todoService.updateTodo(todoRequestDto,id);
 
         assertEquals(HttpStatus.NOT_FOUND,response.getStatus());
+    }
+    @Test
+    @DisplayName("수정 password 불일치 테스트")
+    public void testUpdateTodoForbidden(){
+        TodoRequestDto todoRequestDto = new TodoRequestDto();
+        todoRequestDto.setTitle("테스트3");
+        todoRequestDto.setContents("테스트3");
+        todoRequestDto.setManager("dhgudtjr6635@naver.com");
+        todoRequestDto.setPassword("string");
+        Long id =1L;
+        Todo todo = new Todo(1L,"테스트3","테스트3","dhgudtjr6635@naver.com","string1");
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
+        when(todoService.validationPassword(todoRequestDto,1L)).thenReturn("유효하지 않는 비밀번호");
+        ApiResponse<Long> response = todoService.updateTodo(todoRequestDto,id);
+
+        assertEquals(HttpStatus.FORBIDDEN,response.getStatus());
     }
 }

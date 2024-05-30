@@ -16,22 +16,25 @@ public class Todo extends Timestamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "제목은 필수 입니다.")
     @Column(length = 200 ,nullable=false)
     private String title;
 
-    @NotBlank(message = "할일 내용은 필수 입니다..")
     @Column(length = 200 ,nullable=false)
     private String  contents;
 
     @Column
-    @Email(message = "유효한 이메일 주소여야합니다.")
-    @NotBlank(message = "담당자 이메일은 필수입니다.")
     private String manager;
 
     @Column(nullable = false)
-    @NotBlank(message = "비밀번호는 필수입니다.")
     private String password;
+
+    public Todo(Long id, String title, String contents, String manager, String password) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.manager = manager;
+        this.password = password;
+    }
 
     public Todo(TodoRequestDto todoRequestDto) {
         this.title = todoRequestDto.getTitle();

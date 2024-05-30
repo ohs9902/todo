@@ -20,25 +20,25 @@ public class TodoService {
         this.todoRepository = todoRepository;
     }
 
-    public ApiResponse<TodoResponseDto> createTodo(TodoRequestDto todoRequestDto){
+    public TodoResponseDto createTodo(TodoRequestDto todoRequestDto){
         Todo todo = new Todo(todoRequestDto);
         Todo saveTodo = todoRepository.save(todo);
         TodoResponseDto todoResponseDto = new TodoResponseDto(todo);
-        ApiResponse<TodoResponseDto> apiResponse = new ApiResponse<>(HttpStatus.OK,"할일 생성",todoResponseDto);
-        return apiResponse;
+
+        return todoResponseDto;
     }
 
-    public ApiResponse<TodoResponseDto> inquireTodo(Long id){
+    public TodoResponseDto inquireTodo(Long id){
 
         Optional<Todo> todo = findByTodo(id);
         TodoResponseDto todoResponseDto = new TodoResponseDto(todo.get());
-        ApiResponse<TodoResponseDto> apiResponse = new ApiResponse(HttpStatus.OK,"조회 성공",todoResponseDto);
-        return apiResponse;
+
+        return todoResponseDto;
     }
-    public ApiResponse<List> getTodo(){
+    public List getTodo(){
         List<TodoResponseDto> todoList = todoRepository.findAllByOrderByModifiedAtDesc().stream().map(TodoResponseDto::new).toList();
-        ApiResponse<List> apiResponse = new ApiResponse<>(HttpStatus.OK,"조회 성공",todoList);
-        return apiResponse;
+
+        return todoList;
     }
 
     @Transactional
@@ -72,7 +72,7 @@ public class TodoService {
     }
     public String validationPassword(TodoRequestDto todoRequestDto,Long id){
         Optional<Todo> todo = findByTodo(id);
-        if(todo.get().getPassword().equals(todoRequestDto.getPassword())){
+        if(todo.isPresent() && todo.get().getPassword().equals(todoRequestDto.getPassword())){
             return todoRequestDto.getPassword();
         }
         return "0";
