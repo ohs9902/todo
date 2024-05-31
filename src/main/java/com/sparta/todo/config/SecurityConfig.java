@@ -22,7 +22,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
     }
-
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf((csrf) -> csrf.disable());
         http.authorizeHttpRequests((authorizationRequests) ->
