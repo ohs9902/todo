@@ -1,5 +1,7 @@
 package com.sparta.todo.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.todo.dto.LoginRequestDto;
 import com.sparta.todo.entity.UserRoleEnum;
 import com.sparta.todo.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
@@ -7,24 +9,40 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        super.setAuthenticationManager(authenticationManager);
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/api/user/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        if("application/json".equals(request.getContentType())){
+            try{
+                LoginRequestDto loginRequestDto = objectMapper.readValue(request.getInputStream(),LoginRequestDto.class);
+
+                UsernamePasswordAuthenticationToken authRequest =
+                        new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(),loginRequestDto.getPassword());
+                setDetails(request,authRequest);
+                return this.getAuthenticationManager().authenticate(authRequest);
+            }catch(IOException e){
+                throw new RuntimeException(e);
+            }
+        }
         return super.attemptAuthentication(request, response);
     }
 

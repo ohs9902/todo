@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,17 +22,21 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+
+    private final PasswordEncoder passwordEncoder;
     @Autowired
-    public UserService(UserRepository userRepository, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public void signup(SignupRequestDto requestDto) {
         logger.debug("회원가입 메서드 호출됨: {}", requestDto.getUsername());
         String username = requestDto.getUsername();
-        String password = requestDto.getPassword();
+        String password =requestDto.getPassword();
 
+        String encodedPassword = passwordEncoder.encode(password);
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
@@ -55,7 +60,7 @@ public class UserService {
         }
 
         // 사용자 등록
-        User user = new User(username, password, nickname, role);
+        User user = new User(nickname, username, encodedPassword, role);
         userRepository.save(user);
     }
 

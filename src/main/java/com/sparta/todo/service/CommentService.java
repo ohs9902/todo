@@ -35,4 +35,17 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
         return new CommentResponseDto(savedComment);
     }
+
+    @Transactional
+    public CommentResponseDto updateComment(Long commentId,CommentRequestDto requestDto){
+        Comment comment = commentRepository.findById(commentId).
+                orElseThrow(()-> new IllegalArgumentException("Comment not found!!"));
+        if (!comment.getUser().getUsername().equals(requestDto.getUsername())){
+            throw new IllegalArgumentException("댓글 작성자 아이디와 회원님의 아이디가 다릅니다.");
+        }
+        comment.update(requestDto.getComment());
+
+        Comment updatedComment = commentRepository.save(comment);
+        return new CommentResponseDto(updatedComment);
+    }
 }

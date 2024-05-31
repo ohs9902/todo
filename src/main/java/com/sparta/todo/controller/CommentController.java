@@ -9,10 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/api/comments")
@@ -28,4 +25,12 @@ public class CommentController {
         CommentResponseDto responseDto = commentService.createComment(requestDto);
         return ResponseEntity.ok(responseDto);
     }
+
+    @PutMapping("/updateComment/{id}")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @PathVariable Long commentId,@Valid @RequestBody CommentRequestDto requestDto){
+        CommentResponseDto responseDto = commentService.updateComment(commentId,requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
 }

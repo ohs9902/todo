@@ -21,11 +21,9 @@ public class User extends Timestamped{
     private String nickname;
 
     @Column(nullable = false,unique = true)
-    @Length(min = 4, max = 10)
     private String username;
 
     @Column(nullable = false)
-    @Length(min = 8, max = 15)
     private String password;
 
     @Column(nullable = false)

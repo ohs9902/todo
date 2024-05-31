@@ -31,7 +31,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<String> signupPage(@Valid @RequestBody SignupRequestDto requestDto) {
         try{
-            System.out.println("Signup request received: " + requestDto);
+            System.out.println("Signup request received: " + requestDto.getUsername());
             userService.signup(requestDto);
             return new ResponseEntity<>("회원가입 완료",HttpStatus.CREATED);
         }catch(IllegalArgumentException e){
