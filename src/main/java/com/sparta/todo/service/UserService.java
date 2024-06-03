@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -30,6 +32,8 @@ public class UserService {
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
+
+
 
     public void signup(SignupRequestDto requestDto) {
         logger.debug("회원가입 메서드 호출됨: {}", requestDto.getUsername());
@@ -63,5 +67,4 @@ public class UserService {
         User user = new User(nickname, username, encodedPassword, role);
         userRepository.save(user);
     }
-
 }

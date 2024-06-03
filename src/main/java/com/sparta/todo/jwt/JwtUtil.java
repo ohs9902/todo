@@ -21,6 +21,8 @@ import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Component
@@ -36,13 +38,14 @@ public class JwtUtil {
     private static final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
 
     @Value("${jwt.secret.key}") //application.properties 에 있는 시크릿키를 가져온다.
-    private String secretKey;
+    private static String secretKey;
 
     private static Key key;
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256; //암호화 알고리즘
 
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
 
+    private final Map<String,String> refreshTokenStore = new HashMap<>();
 
 
     @PostConstruct //딱한번만 받아오 되는 값을 사용할 때마다  요청을 새로하는 실수를 방지하기 위해 사용
@@ -51,6 +54,22 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+    public void saveRefreshToken(String username , String refreshToken){
+        refreshTokenStore.put(username,refreshToken);
+    }
+
+    public boolean validateRefreshToken(String username,String refreshToken){
+        return refreshToken.equals(refreshTokenStore.get(username));
+    }
+
+    public static String createRefreshToken() {
+        // 리프레시 토큰 생성 로직 (예: JWT 생성)
+        return Jwts.builder()
+                .setSubject("refresh")
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7)) // 7일 유효 기간
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
     public static String createToken(String username, UserRoleEnum role){
         Date date = new Date();
 
@@ -112,6 +131,23 @@ public class JwtUtil {
         if(cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+                    try {
+                        return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
+                    } catch (UnsupportedEncodingException e) {
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // HttpServletRequest 에서 Cookie Value : Refresh Token 가져오기
+    public static String getRefreshTokenFromRequest(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refreshToken")) {
                     try {
                         return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
                     } catch (UnsupportedEncodingException e) {

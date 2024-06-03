@@ -6,6 +6,7 @@ import com.sparta.todo.entity.UserRoleEnum;
 import com.sparta.todo.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -53,9 +54,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
         String token = JwtUtil.createToken(username,role);
+
+        String refreshToken = JwtUtil.createRefreshToken();
         JwtUtil.addJwtToCookie(token,response);
+        response.addCookie(createRefreshTokenCookie(refreshToken));
     }
 
+    // 리프레시 토큰을 쿠키에 추가하는 유틸리티 메서드
+    private Cookie createRefreshTokenCookie(String refreshToken) {
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/"); // 쿠키의 경로 설정
+        refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7); // 유효 기간 7일
+        return refreshTokenCookie;
+    }
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("로그인 실패");
